@@ -1,0 +1,26 @@
+{
+  "id": "vrej",
+  "name": "vrej",
+  "cabinets": [
+    {
+      "name": "B-01",
+      "width": 60,
+      "depth": 57,
+      "height": 78,
+      "mode": 1,
+      "thickness": 1.8,
+      "back": 0.3
+    },
+    {
+      "name": "T-01",
+      "width": 60,
+      "depth": 33,
+      "height": 85,
+      "mode": 2,
+      "thickness": 1.8,
+      "back": 0.3
+    }
+  ],
+  "createdAt": "2026-04-21T17:38:30.955234493Z",
+  "updatedAt": "2026-04-21T17:38:30.955234493Z"
+}

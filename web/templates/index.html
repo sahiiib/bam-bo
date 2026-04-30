@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/img/bam-bo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bam-Shi Studio</title>
+  <style>
+    :root {
+
+      --bg: #0f0f14;
+      --panel: rgba(20, 20, 28, 0.95);
+      --card: rgba(25, 25, 35, 0.9);
+
+      --ink: #eaeaf0;
+      --muted: #9aa0a6;
+
+      --teal: #14b8a6;
+      --teal-dark: #0f766e;
+
+      --purple: #7c3aed;
+      --purple-dark: #5b21b6;
+
+      --line: rgba(255, 255, 255, 0.08);
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      --empty-bg: rgb(75 255 232 / 50%);
+
+      --table-bg: #0f0f0f9c;
+      --cabinet-items-bg: #0f0f0f9c;
+      --input-bg: #0f0f0f9c;
+
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, 0.15), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.15), transparent 30%),
+        var(--bg);
+
+    }
+
+    .shell {
+      width: min(1380px, calc(100% - 28px));
+      margin: 18px auto 34px;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+   }
+
+    .sidebar {
+      padding: 26px;
+      position: sticky;
+      top: 18px;
+      height: fit-content;
+      display: grid;
+      gap: 24px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-weight: normal;
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 3vw, 3.3rem);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+    }
+
+    .lead, .muted {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .section {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    input, select, button {
+      font: inherit;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--input-bg);
+      padding: 12px 14px;
+      color: var(--ink);
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+    .primary {
+      background: linear-gradient(135deg, var(--teal), var(--purple));
+      color: #fff;
+    }
+
+    .secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .content {
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .stats, .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+    }
+
+    .project-list, .cabinet-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .project-item, .cabinet-item {
+      background: var(--cabinet-items-bg);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .row.wrap {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .project-title {
+      font-size: 1.05rem;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .material-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .material-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .settings-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .settings-form .wide {
+      grid-column: 1 / -1;
+    }
+
+    .settings-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .settings-item {
+      border: 1px solid var(--line);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .texture-chip {
+      width: 42px;
+      height: 32px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.12);
+      background-size: cover;
+      background-position: center;
+    }
+
+    .preview-wrap {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .preview-stage {
+      min-height: 120px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, rgba(186, 226, 218, 0.12), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,0.75), rgba(186, 226, 219, 0.48));
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      perspective: 800px;
+    }
+
+    .box-3d {
+      position: relative;
+      width: var(--box-w);
+      height: var(--box-h);
+      transform-style: preserve-3d;
+      transform: rotateX(-20deg) rotateY(-34deg);
+      animation: floatIn 450ms ease;
+    }
+
+    .face {
+      position: absolute;
+      border: 1px solid rgba(77, 46, 24, 0.22);
+      background: linear-gradient(135deg, rgba(186, 226, 218, 0.95), rgba(185, 226, 218, 0.9));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+    }
+
+    .face.front {
+      width: var(--box-w);
+      height: var(--box-h);
+      transform: translateZ(calc(var(--box-d) / 2));
+    }
+
+    .face.back {
+      width: var(--box-w);
+      height: var(--box-h);
+      transform: rotateY(180deg) translateZ(calc(var(--box-d) / 2));
+      background: linear-gradient(135deg, rgba(186, 226, 218, 0.9), rgba(186, 226, 218, 0.88));
+    }
+
+    .face.left, .face.right {
+      width: var(--box-d);
+      height: var(--box-h);
+      left: calc((var(--box-w) - var(--box-d)) / 2);
+      background: linear-gradient(180deg, rgba(186, 226, 218, 0.94), rgba(186, 226, 218, 0.92));
+    }
+
+    .face.left {
+      transform: rotateY(-90deg) translateZ(calc(var(--box-w) / 2));
+    }
+
+    .face.right {
+      transform: rotateY(90deg) translateZ(calc(var(--box-w) / 2));
+    }
+
+    .face.top, .face.bottom {
+      width: var(--box-w);
+      height: var(--box-d);
+      top: calc((var(--box-h) - var(--box-d)) / 2);
+      background: linear-gradient(135deg, rgba(186, 226, 218, 0.96), rgba(186, 226, 218, 0.9));
+    }
+
+    .face.top {
+      transform: rotateX(90deg) translateZ(calc(var(--box-h) / 2));
+    }
+
+    .face.bottom {
+      transform: rotateX(-90deg) translateZ(calc(var(--box-h) / 2));
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--table-bg);
+    }
+
+    th, td {
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 0.94rem;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: normal;
+      background: rgba(29, 43, 31, 0.04);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      background: var(--empty-bg);
+    }
+
+    .notice {
+      min-height: 24px;
+      color: var(--accent-dark);
+      font-size: 0.95rem;
+    }
+
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: rotateX(-25deg) rotateY(-40deg) translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: rotateX(-20deg) rotateY(-34deg) translateY(0);
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .shell, .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .preview-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-form {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="panel sidebar">
+      <section class="section">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <img src="/static/img/bam-bo.png" alt="Bam-Bo Logo" style="width:64px; height:64px;">
+          <h1>Bam-Shi<br>Studio</h1>
+        </div>
+        <div class="lead">Developed by Saheb Amrei</div>
+      </section>
+
+      <section class="section">
+        <label>
+          Project name
+          <input id="project-name" placeholder="Kitchen A">
+        </label>
+        <div class="row wrap">
+          <button class="primary" id="save-project" type="button">Save Project</button>
+          <button class="secondary" id="new-project" type="button">New Project</button>
+        </div>
+        <div class="notice" id="status"></div>
+      </section>
+
+      <section class="section">
+        <h3>Add Cabinet</h3>
+        <form id="cabinet-form">
+          <label>
+            Cabinet name
+            <input name="name" placeholder="Base cabinet A" required>
+          </label>
+          <label>
+            Mode
+            <select name="mode">
+              <option value="1">1 - Kitchen Bottom</option>
+              <option value="2">2 - Kitchen Top</option>
+            </select>
+          </label>
+          <label>
+            Width
+            <input name="width" type="number" step="0.01" min="0.01" required>
+          </label>
+          <label>
+            Depth
+            <input name="depth" type="number" step="0.01" min="0.01" required>
+          </label>
+          <label>
+            Height
+            <input name="height" type="number" step="0.01" min="0.01" required>
+          </label>
+          <label>
+            Cabinet material
+            <select name="cabinetMaterialID" id="cabinet-material"></select>
+          </label>
+          <label>
+            Backside panel material
+            <select name="backMaterialID" id="back-material"></select>
+          </label>
+          <label>
+            Face material
+            <select name="faceMaterialID" id="face-material"></select>
+          </label>
+          <label>
+            <input type="checkbox" name="cutting inside" checked>
+            Cutting inside
+          </label>
+          <button class="primary" type="submit">Add cabinet</button>
+        </form>
+      </section>
+    </aside>
+
+    <main class="panel content">
+      <div class="toolbar">
+        <div class="stats">
+          <div class="pill" id="project-id">Unsaved project</div>
+          <div class="pill" id="cabinet-count">0 cabinets</div>
+          <div class="pill" id="piece-count">0 pieces</div>
+        </div>
+        <div class="actions">
+          <button class="secondary" id="export-json" type="button">Export JSON</button>
+          <button class="primary" id="export-pdf" type="button">Export PDF</button>
+        </div>
+      </div>
+
+      <section class="grid">
+        <div class="stack">
+          <div class="card">
+            <h2>Cabinets</h2>
+            <div id="cabinet-list" class="cabinet-list"></div>
+          </div>
+          <div class="card">
+            <h2>Cutting List</h2>
+            <div id="piece-table"></div>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <h2>Project Settings</h2>
+            <div class="section">
+              <h3>Materials</h3>
+              <form id="material-form" class="settings-form">
+                <input type="hidden" name="id">
+                <label class="wide">
+                  Material name
+                  <input name="name" placeholder="Walnut ply" required>
+                </label>
+                <label>
+                  Thickness
+                  <input name="thickness" type="number" step="0.01" min="0.01" required>
+                </label>
+                <label>
+                  Texture
+                  <select name="textureID" id="material-texture"></select>
+                </label>
+                <label>
+                  Sheet width
+                  <input name="width" type="number" step="0.01" min="0.01" value="122" required>
+                </label>
+                <label>
+                  Sheet height
+                  <input name="height" type="number" step="0.01" min="0.01" value="244" required>
+                </label>
+                <div class="row wrap wide">
+                  <button class="primary" id="save-material" type="submit">Add Material</button>
+                  <button class="secondary" id="cancel-material-edit" type="button">Cancel</button>
+                </div>
+              </form>
+              <div id="material-list" class="settings-list"></div>
+            </div>
+
+            <div class="section">
+              <h3>Textures</h3>
+              <form id="texture-form" class="settings-form">
+                <input type="hidden" name="id">
+                <label>
+                  Texture name
+                  <input name="name" placeholder="Natural oak" required>
+                </label>
+                <label>
+                  Texture image
+                  <input name="image" placeholder="/static/img/texture.png or https://...">
+                </label>
+                <div class="row wrap wide">
+                  <button class="primary" id="save-texture" type="submit">Add Texture</button>
+                  <button class="secondary" id="cancel-texture-edit" type="button">Cancel</button>
+                </div>
+              </form>
+              <div id="texture-list" class="settings-list"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Saved Projects</h2>
+            <div id="project-list" class="project-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const DEFAULT_TEXTURES = [
+      { id: 1, name: 'Natural Wood', image: '' },
+      { id: 2, name: 'Back Panel Plain', image: '' }
+    ];
+
+    const DEFAULT_MATERIALS = [
+      { id: 1, name: 'Cabinet Ply 18mm', thickness: 1.8, textureID: 1, width: 122, height: 244 },
+      { id: 2, name: 'Back Panel 3mm', thickness: 0.3, textureID: 2, width: 122, height: 244 },
+      { id: 3, name: 'Face Ply 18mm', thickness: 1.8, textureID: 1, width: 122, height: 244 }
+    ];
+
+    const state = {
+      currentProjectId: '',
+      cabinets: [],
+      projects: [],
+      materials: DEFAULT_MATERIALS.map((material) => ({ ...material })),
+      textures: DEFAULT_TEXTURES.map((texture) => ({ ...texture }))
+    };
+
+    const form = document.getElementById('cabinet-form');
+    const materialForm = document.getElementById('material-form');
+    const textureForm = document.getElementById('texture-form');
+    const projectNameInput = document.getElementById('project-name');
+    const cabinetList = document.getElementById('cabinet-list');
+    const pieceTable = document.getElementById('piece-table');
+    const projectList = document.getElementById('project-list');
+    const materialList = document.getElementById('material-list');
+    const textureList = document.getElementById('texture-list');
+    const cabinetCount = document.getElementById('cabinet-count');
+    const pieceCount = document.getElementById('piece-count');
+    const projectIdBadge = document.getElementById('project-id');
+    const statusNode = document.getElementById('status');
+    const materialTextureSelect = document.getElementById('material-texture');
+    const materialSelects = [
+      { node: document.getElementById('cabinet-material'), fallback: 1 },
+      { node: document.getElementById('back-material'), fallback: 2 },
+      { node: document.getElementById('face-material'), fallback: 3 }
+    ];
+
+    const escapeHTML = (value) => String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+
+    const normalizeTextures = (textures) => {
+      const input = textures && textures.length ? textures : DEFAULT_TEXTURES;
+      return input.map((texture, index) => ({
+        id: Number(texture.id || index + 1),
+        name: String(texture.name || 'Texture').trim() || 'Texture',
+        image: String(texture.image || '').trim()
+      }));
+    };
+
+    const normalizeMaterials = (materials) => {
+      const input = materials && materials.length ? materials : DEFAULT_MATERIALS;
+      return input.map((material, index) => ({
+        id: Number(material.id || index + 1),
+        name: String(material.name || 'Material').trim() || 'Material',
+        thickness: Number(material.thickness || 1.8),
+        colorID: Number(material.colorID || 0),
+        textureID: Number(material.textureID || 0),
+        width: Number(material.width || 122),
+        height: Number(material.height || 244)
+      }));
+    };
+
+    const materialByID = (id) =>
+      state.materials.find((material) => material.id === Number(id)) || state.materials[0] || DEFAULT_MATERIALS[0];
+
+    const textureByID = (id) =>
+      state.textures.find((texture) => texture.id === Number(id));
+
+    const materialName = (id) => {
+      const material = materialByID(id);
+      return material ? material.name : 'Material ' + id;
+    };
+
+    const materialLabel = (material) => {
+      const texture = textureByID(material.textureID);
+      const textureLabel = texture ? ' | ' + texture.name : '';
+      return material.name + ' | ' + Number(material.thickness).toFixed(2) + ' thick' + textureLabel;
+    };
+
+    const nextID = (items) => items.reduce((max, item) => Math.max(max, Number(item.id || 0)), 0) + 1;
+
+    const renderMaterialOptions = () => {
+      materialSelects.forEach(({ node, fallback }) => {
+        const selected = node.value || String(fallback);
+        node.innerHTML = state.materials.map((material) =>
+          '<option value="' + material.id + '">' + escapeHTML(materialLabel(material)) + '</option>'
+        ).join('');
+        const fallbackValue = state.materials.some((material) => material.id === fallback)
+          ? String(fallback)
+          : String(state.materials[0]?.id || '');
+        node.value = state.materials.some((material) => String(material.id) === selected) ? selected : fallbackValue;
+      });
+    };
+
+    const renderTextureOptions = () => {
+      const selected = materialTextureSelect.value;
+      materialTextureSelect.innerHTML = '<option value="0">No texture</option>' + state.textures.map((texture) =>
+        '<option value="' + texture.id + '">' + escapeHTML(texture.name) + '</option>'
+      ).join('');
+      materialTextureSelect.value = state.textures.some((texture) => String(texture.id) === selected) ? selected : '0';
+    };
+
+    const resolveCabinetMaterials = (cab) => {
+      const cabinet = materialByID(cab.cabinetMaterialID || 1);
+      const back = materialByID(cab.backMaterialID || 2);
+      const face = materialByID(cab.faceMaterialID || 3);
+      return { cabinet, back, face };
+    };
+
+    const normalizeCabinet = (cab) => {
+      const normalized = {
+        ...cab,
+        cabinetMaterialID: Number(cab.cabinetMaterialID || 1),
+        backMaterialID: Number(cab.backMaterialID || 2),
+        faceMaterialID: Number(cab.faceMaterialID || 3)
+      };
+      const materials = resolveCabinetMaterials(normalized);
+      normalized.thickness = Number(cab.thickness || materials.cabinet.thickness);
+      normalized.back = Number(cab.back || materials.back.thickness);
+      return normalized;
+    };
+
+    const calculatePieces = (cab) => {
+      const materials = resolveCabinetMaterials(cab);
+      const cabinetThickness = Number(materials.cabinet.thickness);
+      const backThickness = Number(materials.back.thickness);
+      const faceThickness = Number(materials.face.thickness);
+
+      if (cab.mode === 1) {
+        return [
+          { cabinetName: cab.name, name: 'Bottom', count: 1, length: cab.depth, width: cab.width, thickness: cabinetThickness, id: 1, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Sides', id: 2, length: cab.depth, width: cab.height - cabinetThickness, thickness: cabinetThickness, count: 2, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Shelf', id: 3, length: cab.width - 2 * cabinetThickness, width: cab.depth - cabinetThickness - backThickness, thickness: cabinetThickness, count: 1, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Back Side', id: 4, length: cab.width - cabinetThickness - 0.2, width: cab.height - cabinetThickness / 2 - 0.1, thickness: backThickness, count: 1, materialID: materials.back.id },
+          { cabinetName: cab.name, name: 'Back Tie', id: 5, length: cab.width - 2 * cabinetThickness, width: 8, thickness: cabinetThickness, count: 2, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Top Tie', id: 6, length: cab.width - 2 * cabinetThickness, width: 8, thickness: cabinetThickness, count: 2, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Face', id: 7, length: cab.height, width: cab.width, thickness: faceThickness, count: 1, materialID: materials.face.id }
+        ];
+      }
+
+      if (cab.mode === 2) {
+        return [
+          { cabinetName: cab.name, name: 'Bottom', id: 1, length: cab.depth, width: cab.width - 2 * cabinetThickness, thickness: cabinetThickness, count: 1, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Sides', id: 2, length: cab.depth, width: cab.height, thickness: cabinetThickness, count: 2, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Top/Shelf', id: 3, length: cab.width - 2 * cabinetThickness, width: cab.depth - cabinetThickness - backThickness, thickness: cabinetThickness, count: 1, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Back/Tie', id: 4, length: cab.width - 2 * cabinetThickness, width: 8, thickness: cabinetThickness, count: 2, materialID: materials.cabinet.id },
+          { cabinetName: cab.name, name: 'Back Side', id: 5, length: cab.width - cabinetThickness - 0.2, width: cab.height - cabinetThickness / 2 - 0.1, thickness: backThickness, count: 1, materialID: materials.back.id },
+          { cabinetName: cab.name, name: 'Face', id: 6, length: cab.height, width: cab.width, thickness: faceThickness, count: 1, materialID: materials.face.id }
+        ];
+      }
+
+      return [];
+    };
+
+    const projectName = () => projectNameInput.value.trim();
+    const allPieces = () => state.cabinets.flatMap(calculatePieces);
+    const totalPieceCount = () => allPieces().reduce((sum, piece) => sum + piece.count, 0);
+
+    const setStatus = (message) => {
+      statusNode.textContent = message || '';
+    };
+
+    const boxStyle = (cab) => {
+      const max = Math.max(cab.width, cab.height, cab.depth, 1);
+      const scale = 84 / max;
+      const width = Math.max(34, Math.round(cab.width * scale));
+      const height = Math.max(34, Math.round(cab.height * scale));
+      const depth = Math.max(26, Math.round(cab.depth * scale));
+      return '--box-w:' + width + 'px;--box-h:' + height + 'px;--box-d:' + depth + 'px;';
+    };
+
+    const renderCabinets = () => {
+      if (!state.cabinets.length) {
+        cabinetList.innerHTML = '<div class="empty">No cabinets yet. Add one from the form to start building the project.</div>';
+        return;
+      }
+
+      cabinetList.innerHTML = state.cabinets.map((cab, index) =>
+        {
+          const materials = resolveCabinetMaterials(cab);
+          return '<article class="cabinet-item">' +
+          '<div class="preview-wrap">' +
+            '<div class="preview-stage">' +
+              '<div class="box-3d" style="' + boxStyle(cab) + '">' +
+                '<div class="face front"></div>' +
+                '<div class="face back"></div>' +
+                '<div class="face left"></div>' +
+                '<div class="face right"></div>' +
+                '<div class="face top"></div>' +
+                '<div class="face bottom"></div>' +
+              '</div>' +
+            '</div>' +
+            '<div>' +
+              '<div class="row">' +
+                '<strong>' + escapeHTML(cab.name) + '</strong>' +
+                '<button class="secondary" type="button" data-remove="' + index + '">Remove</button>' +
+              '</div>' +
+              '<div class="mini">Mode ' + cab.mode + ' | ' + cab.width + 'w x ' + cab.depth + 'd x ' + cab.height + 'h</div>' +
+              '<div class="mini">Cabinet: ' + escapeHTML(materialLabel(materials.cabinet)) + '</div>' +
+              '<div class="mini">Back: ' + escapeHTML(materialLabel(materials.back)) + ' | Face: ' + escapeHTML(materialLabel(materials.face)) + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</article>';
+        }
+      ).join('');
+    };
+
+    const renderPieces = () => {
+      const pieces = allPieces();
+      if (!pieces.length) {
+        pieceTable.innerHTML = '<div class="empty">Your combined cutting list will appear here.</div>';
+        return;
+      }
+
+      const grouped = pieces.reduce((groups, piece) => {
+        const key = String(piece.materialID || 0);
+        groups[key] ||= [];
+        groups[key].push(piece);
+        return groups;
+      }, {});
+
+      pieceTable.innerHTML = '<div class="material-list">' + Object.entries(grouped).map(([materialID, groupPieces]) => {
+        const rows = groupPieces.map((piece) =>
+          '<tr>' +
+            '<td>' + escapeHTML(piece.cabinetName) + '</td>' +
+            '<td>' + escapeHTML(piece.name) + '</td>' +
+            '<td>' + piece.count + '</td>' +
+            '<td>' + piece.length.toFixed(2) + '</td>' +
+            '<td>' + piece.width.toFixed(2) + '</td>' +
+            '<td>' + piece.thickness.toFixed(2) + '</td>' +
+          '</tr>'
+        ).join('');
+
+        return '<section class="material-group">' +
+          '<h3>' + escapeHTML(materialName(Number(materialID))) + '</h3>' +
+          '<table>' +
+            '<thead>' +
+              '<tr>' +
+                '<th>Cabinet</th>' +
+                '<th>Piece</th>' +
+                '<th>Count</th>' +
+                '<th>Length</th>' +
+                '<th>Width</th>' +
+                '<th>Thickness</th>' +
+              '</tr>' +
+            '</thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</section>';
+      }).join('') + '</div>';
+    };
+
+    const renderProjects = () => {
+      if (!state.projects.length) {
+        projectList.innerHTML = '<div class="empty">Saved projects will appear here after your first save.</div>';
+        return;
+      }
+
+      projectList.innerHTML = state.projects.map((project) =>
+        '<article class="project-item">' +
+          '<div class="row">' +
+            '<div class="project-title">' + escapeHTML(project.name) + '</div>' +
+            '<button class="secondary" type="button" data-load="' + escapeHTML(project.id) + '">Load</button>' +
+          '</div>' +
+          '<div class="mini">' + project.cabinetCount + ' cabinets | ' + project.pieceCount + ' pieces</div>' +
+          '<div class="mini">Updated ' + new Date(project.updatedAt).toLocaleString() + '</div>' +
+        '</article>'
+      ).join('');
+    };
+
+    const renderMaterialSettings = () => {
+      if (!state.materials.length) {
+        materialList.innerHTML = '<div class="empty">Add at least one material before adding cabinets.</div>';
+        return;
+      }
+
+      materialList.innerHTML = state.materials.map((material) => {
+        const texture = textureByID(material.textureID);
+        const textureImage = texture && texture.image ? ' style="background-image:url(' + escapeHTML(texture.image) + ')"' : '';
+        return '<article class="settings-item">' +
+          '<div class="row">' +
+            '<div>' +
+              '<strong>' + escapeHTML(material.name) + '</strong>' +
+              '<div class="mini">' + Number(material.thickness).toFixed(2) + ' thick | ' + Number(material.width).toFixed(2) + ' x ' + Number(material.height).toFixed(2) + '</div>' +
+              '<div class="mini">Texture: ' + escapeHTML(texture ? texture.name : 'None') + '</div>' +
+            '</div>' +
+            '<div class="texture-chip"' + textureImage + '></div>' +
+          '</div>' +
+          '<div class="row wrap">' +
+            '<button class="secondary" type="button" data-edit-material="' + material.id + '">Edit</button>' +
+            '<button class="secondary" type="button" data-remove-material="' + material.id + '">Remove</button>' +
+          '</div>' +
+        '</article>';
+      }).join('');
+    };
+
+    const renderTextureSettings = () => {
+      if (!state.textures.length) {
+        textureList.innerHTML = '<div class="empty">No textures yet.</div>';
+        return;
+      }
+
+      textureList.innerHTML = state.textures.map((texture) => {
+        const textureImage = texture.image ? ' style="background-image:url(' + escapeHTML(texture.image) + ')"' : '';
+        return '<article class="settings-item">' +
+          '<div class="row">' +
+            '<div>' +
+              '<strong>' + escapeHTML(texture.name) + '</strong>' +
+              '<div class="mini">' + escapeHTML(texture.image || 'No image') + '</div>' +
+            '</div>' +
+            '<div class="texture-chip"' + textureImage + '></div>' +
+          '</div>' +
+          '<div class="row wrap">' +
+            '<button class="secondary" type="button" data-edit-texture="' + texture.id + '">Edit</button>' +
+            '<button class="secondary" type="button" data-remove-texture="' + texture.id + '">Remove</button>' +
+          '</div>' +
+        '</article>';
+      }).join('');
+    };
+
+    const renderStats = () => {
+      projectIdBadge.textContent = state.currentProjectId ? 'Project: ' + state.currentProjectId : 'Unsaved project';
+      cabinetCount.textContent = state.cabinets.length + (state.cabinets.length === 1 ? ' cabinet' : ' cabinets');
+      const pieces = totalPieceCount();
+      pieceCount.textContent = pieces + (pieces === 1 ? ' piece' : ' pieces');
+    };
+
+    const render = () => {
+      renderTextureOptions();
+      renderCabinets();
+      renderPieces();
+      renderProjects();
+      renderMaterialSettings();
+      renderTextureSettings();
+      renderStats();
+    };
+
+    const exportBody = () => JSON.stringify({
+      projectName: projectName(),
+      cabinets: state.cabinets,
+      materials: state.materials,
+      textures: state.textures
+    });
+
+    const downloadExport = async (path, filename) => {
+      if (!state.cabinets.length) {
+        setStatus('Add at least one cabinet before exporting.');
+        return;
+      }
+
+      const response = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: exportBody()
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Export failed' }));
+        setStatus(error.error || 'Export failed');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+      setStatus('Export ready: ' + filename);
+    };
+
+    const loadProjects = async () => {
+      const response = await fetch('/api/projects');
+      const payload = await response.json();
+      state.projects = payload.projects || [];
+      renderProjects();
+    };
+
+    const loadMaterials = async () => {
+      const response = await fetch('/api/materials');
+      const payload = await response.json();
+      state.textures = normalizeTextures(payload.textures);
+      state.materials = normalizeMaterials(payload.materials);
+      renderMaterialOptions();
+      render();
+    };
+
+    const loadProject = async (id) => {
+      const response = await fetch('/api/projects/' + encodeURIComponent(id));
+      const payload = await response.json();
+      if (!response.ok) {
+        setStatus(payload.error || 'Failed to load project');
+        return;
+      }
+
+      state.currentProjectId = payload.id;
+      projectNameInput.value = payload.name;
+      state.textures = normalizeTextures(payload.textures);
+      state.materials = normalizeMaterials(payload.materials);
+      state.cabinets = (payload.cabinets || []).map(normalizeCabinet);
+      setStatus('Loaded project "' + payload.name + '".');
+      render();
+      await loadProjects();
+    };
+
+    const saveProject = async () => {
+      if (!projectName()) {
+        setStatus('Project name is required before saving.');
+        return;
+      }
+      if (!state.cabinets.length) {
+        setStatus('Add at least one cabinet before saving.');
+        return;
+      }
+
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: state.currentProjectId,
+          name: projectName(),
+          cabinets: state.cabinets,
+          materials: state.materials,
+          textures: state.textures
+        })
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        setStatus(payload.error || 'Failed to save project');
+        return;
+      }
+
+      state.currentProjectId = payload.id;
+      projectNameInput.value = payload.name;
+      setStatus('Saved project "' + payload.name + '".');
+      render();
+      await loadProjects();
+    };
+
+    const newProject = () => {
+      state.currentProjectId = '';
+      state.cabinets = [];
+      state.materials = normalizeMaterials([]);
+      state.textures = normalizeTextures([]);
+      projectNameInput.value = '';
+      form.reset();
+      materialForm.reset();
+      textureForm.reset();
+      renderMaterialOptions();
+      setStatus('Started a new project.');
+      render();
+    };
+
+    const resetMaterialForm = () => {
+      materialForm.reset();
+      materialForm.elements.id.value = '';
+      document.getElementById('save-material').textContent = 'Add Material';
+    };
+
+    const resetTextureForm = () => {
+      textureForm.reset();
+      textureForm.elements.id.value = '';
+      document.getElementById('save-texture').textContent = 'Add Texture';
+    };
+
+    materialForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(materialForm);
+      const id = Number(data.get('id'));
+      const material = {
+        id: id || nextID(state.materials),
+        name: String(data.get('name')).trim(),
+        thickness: Number(data.get('thickness')),
+        textureID: Number(data.get('textureID')),
+        width: Number(data.get('width')),
+        height: Number(data.get('height'))
+      };
+
+      if (!material.name || material.thickness <= 0 || material.width <= 0 || material.height <= 0) {
+        setStatus('Material name and dimensions are required.');
+        return;
+      }
+
+      const existingIndex = state.materials.findIndex((item) => item.id === material.id);
+      if (existingIndex >= 0) {
+        state.materials[existingIndex] = material;
+        setStatus('Material updated.');
+      } else {
+        state.materials.push(material);
+        setStatus('Material added.');
+      }
+
+      resetMaterialForm();
+      renderMaterialOptions();
+      render();
+    });
+
+    textureForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(textureForm);
+      const id = Number(data.get('id'));
+      const texture = {
+        id: id || nextID(state.textures),
+        name: String(data.get('name')).trim(),
+        image: String(data.get('image')).trim()
+      };
+
+      if (!texture.name) {
+        setStatus('Texture name is required.');
+        return;
+      }
+
+      const existingIndex = state.textures.findIndex((item) => item.id === texture.id);
+      if (existingIndex >= 0) {
+        state.textures[existingIndex] = texture;
+        setStatus('Texture updated.');
+      } else {
+        state.textures.push(texture);
+        setStatus('Texture added.');
+      }
+
+      resetTextureForm();
+      render();
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const cabinetMaterial = materialByID(Number(data.get('cabinetMaterialID')));
+      const backMaterial = materialByID(Number(data.get('backMaterialID')));
+      const faceMaterial = materialByID(Number(data.get('faceMaterialID')));
+
+      state.cabinets.push({
+        name: String(data.get('name')).trim(),
+        mode: Number(data.get('mode')),
+        width: Number(data.get('width')),
+        depth: Number(data.get('depth')),
+        height: Number(data.get('height')),
+        cabinetMaterialID: cabinetMaterial.id,
+        backMaterialID: backMaterial.id,
+        faceMaterialID: faceMaterial.id,
+        thickness: Number(cabinetMaterial.thickness),
+        back: Number(backMaterial.thickness)
+      });
+
+      form.reset();
+      renderMaterialOptions();
+      setStatus('Cabinet added to the current project.');
+      render();
+    });
+
+    cabinetList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const index = target.dataset.remove;
+      if (index === undefined) return;
+
+      state.cabinets.splice(Number(index), 1);
+      setStatus('Cabinet removed.');
+      render();
+    });
+
+    materialList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const editID = Number(target.dataset.editMaterial);
+      if (editID) {
+        const material = state.materials.find((item) => item.id === editID);
+        if (!material) return;
+        materialForm.elements.id.value = material.id;
+        materialForm.elements.name.value = material.name;
+        materialForm.elements.thickness.value = material.thickness;
+        materialForm.elements.textureID.value = material.textureID || 0;
+        materialForm.elements.width.value = material.width;
+        materialForm.elements.height.value = material.height;
+        document.getElementById('save-material').textContent = 'Update Material';
+        return;
+      }
+
+      const removeID = Number(target.dataset.removeMaterial);
+      if (!removeID) return;
+
+      const inUse = state.cabinets.some((cab) =>
+        cab.cabinetMaterialID === removeID || cab.backMaterialID === removeID || cab.faceMaterialID === removeID
+      );
+      if (inUse) {
+        setStatus('Material is used by a cabinet. Change or remove those cabinets first.');
+        return;
+      }
+      if (state.materials.length <= 1) {
+        setStatus('Keep at least one material in the project.');
+        return;
+      }
+
+      state.materials = state.materials.filter((material) => material.id !== removeID);
+      resetMaterialForm();
+      renderMaterialOptions();
+      setStatus('Material removed.');
+      render();
+    });
+
+    textureList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const editID = Number(target.dataset.editTexture);
+      if (editID) {
+        const texture = state.textures.find((item) => item.id === editID);
+        if (!texture) return;
+        textureForm.elements.id.value = texture.id;
+        textureForm.elements.name.value = texture.name;
+        textureForm.elements.image.value = texture.image;
+        document.getElementById('save-texture').textContent = 'Update Texture';
+        return;
+      }
+
+      const removeID = Number(target.dataset.removeTexture);
+      if (!removeID) return;
+
+      state.textures = state.textures.filter((texture) => texture.id !== removeID);
+      state.materials = state.materials.map((material) =>
+        material.textureID === removeID ? { ...material, textureID: 0 } : material
+      );
+      resetTextureForm();
+      setStatus('Texture removed.');
+      render();
+    });
+
+    projectList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const id = target.dataset.load;
+      if (!id) return;
+      loadProject(id);
+    });
+
+    document.getElementById('save-project').addEventListener('click', saveProject);
+    document.getElementById('new-project').addEventListener('click', newProject);
+    document.getElementById('cancel-material-edit').addEventListener('click', resetMaterialForm);
+    document.getElementById('cancel-texture-edit').addEventListener('click', resetTextureForm);
+    document.getElementById('export-json').addEventListener('click', () => downloadExport('/api/export/json', 'cut-list.json'));
+    document.getElementById('export-pdf').addEventListener('click', () => downloadExport('/api/export/pdf', 'cut-list.pdf'));
+
+    renderMaterialOptions();
+    render();
+    loadMaterials().catch(() => setStatus('Could not load material list yet.'));
+    loadProjects().catch(() => setStatus('Could not load saved projects yet.'));
+  </script>
+</body>
+</html>

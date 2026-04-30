@@ -1,0 +1,26 @@
+{
+  "id": "demo-kitchen",
+  "name": "Demo Kitchen",
+  "cabinets": [
+    {
+      "name": "Base A",
+      "width": 60,
+      "depth": 50,
+      "height": 72,
+      "mode": 1,
+      "thickness": 1.8,
+      "back": 0.3
+    },
+    {
+      "name": "Wall B",
+      "width": 80,
+      "depth": 35,
+      "height": 50,
+      "mode": 2,
+      "thickness": 1.8,
+      "back": 0.3
+    }
+  ],
+  "createdAt": "2026-04-21T17:35:40.922887516Z",
+  "updatedAt": "2026-04-21T17:35:40.922887516Z"
+}

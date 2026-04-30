@@ -1,0 +1,16 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+# Test binary, built with `go test -c`
+*.test
+*.yml
+# Output of the go coverage tool, produced by `go test -coverprofile`
+*.out
+
+# Dependency directories
+vendor/
+data /
+Dockerfile
