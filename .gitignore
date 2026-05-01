@@ -8,6 +8,7 @@
 *.test
 *.yml
 !docker-compose.yml
+.codex
 # Output of the go coverage tool, produced by `go test -coverprofile`
 *.out
 
