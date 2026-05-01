@@ -11,10 +11,19 @@ go run ./cmd/server
 
 Open http://localhost:8085.
 
+Set `DATABASE_URL` to store projects in PostgreSQL:
+
+```sh
+DATABASE_URL="postgres://bambo:bambo@localhost:5432/bambo?sslmode=disable" go run ./cmd/server
+```
+
+Without `DATABASE_URL`, the app uses the local filesystem store.
+
 ## Docker
 
 ```sh
 docker compose up --build
 ```
 
-Project data is stored in `data/projects`.
+Docker Compose starts PostgreSQL and stores project data in the `postgres-data`
+volume.

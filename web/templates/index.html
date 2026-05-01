@@ -180,10 +180,15 @@
     .project-item, .cabinet-item {
       background: var(--cabinet-items-bg);
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: 8px;
       padding: 14px;
       display: grid;
       gap: 10px;
+    }
+
+    .cabinet-item.is-active {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.35);
     }
 
     .row {
@@ -246,6 +251,36 @@
       background: rgba(255, 255, 255, 0.12);
       background-size: cover;
       background-position: center;
+    }
+
+    .viewer-shell {
+      display: grid;
+      gap: 12px;
+    }
+
+    .viewer-stage {
+      position: relative;
+      min-height: 420px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(11, 18, 22, 0.98), rgba(8, 10, 16, 0.98));
+    }
+
+    .viewer-stage canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .viewer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .viewer-meta .pill {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--ink);
     }
 
     .preview-wrap {
@@ -483,6 +518,15 @@
 
       <section class="grid">
         <div class="stack">
+          <div class="card viewer-shell">
+            <div class="row wrap">
+              <h2>3D Cabinet View</h2>
+              <div class="mini" id="viewer-title">Select a cabinet</div>
+            </div>
+            <div class="viewer-stage" id="box-viewer"></div>
+            <div class="viewer-meta" id="viewer-meta"></div>
+          </div>
+
           <div class="card">
             <h2>Cabinets</h2>
             <div id="cabinet-list" class="cabinet-list"></div>
@@ -511,6 +555,17 @@
                 <label>
                   Texture
                   <select name="textureID" id="material-texture"></select>
+                </label>
+                <label>
+                  Color
+                  <select name="colorID">
+                    <option value="0">Neutral</option>
+                    <option value="1">Birch</option>
+                    <option value="2">Graphite</option>
+                    <option value="3">Walnut</option>
+                    <option value="4">White</option>
+                    <option value="5">Sage</option>
+                  </select>
                 </label>
                 <label>
                   Sheet width
@@ -558,6 +613,202 @@
     </main>
   </div>
 
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/static/js/vendor/three.module.js",
+        "three/addons/": "/static/js/vendor/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/OrbitControls.js';
+
+    const mount = document.getElementById('box-viewer');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0f14);
+
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(4.2, 3.2, 5.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    mount.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.enablePan = true;
+    controls.enableZoom = true;
+    controls.minDistance = 2;
+    controls.maxDistance = 14;
+
+    scene.add(new THREE.HemisphereLight(0xf8fafc, 0x18202a, 2.6));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.7);
+    keyLight.position.set(3, 5, 4);
+    scene.add(keyLight);
+
+    const floor = new THREE.GridHelper(8, 16, 0x2dd4bf, 0x27313a);
+    floor.position.y = -1.4;
+    scene.add(floor);
+
+    let cabinetGroup = new THREE.Group();
+    scene.add(cabinetGroup);
+
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.setCrossOrigin('anonymous');
+    const textureCache = new Map();
+    const colorPalette = {
+      0: 0xc8ced2,
+      1: 0xcaa878,
+      2: 0x56616b,
+      3: 0x73513a,
+      4: 0xf1f5f9,
+      5: 0x8ba889
+    };
+
+    const getTexture = (texture) => {
+      if (!texture || !texture.image) return null;
+      if (!textureCache.has(texture.image)) {
+        const loaded = textureLoader.load(texture.image);
+        loaded.wrapS = THREE.RepeatWrapping;
+        loaded.wrapT = THREE.RepeatWrapping;
+        loaded.repeat.set(1.4, 1.4);
+        textureCache.set(texture.image, loaded);
+      }
+      return textureCache.get(texture.image);
+    };
+
+    const findTexture = (textures, id) =>
+      (textures || []).find((texture) => Number(texture.id) === Number(id));
+
+    const visualMaterial = (material, textures) => {
+      const texture = findTexture(textures, material?.textureID);
+      const map = getTexture(texture);
+      return new THREE.MeshStandardMaterial({
+        color: colorPalette[Number(material?.colorID || 0)] || colorPalette[0],
+        map,
+        roughness: 0.62,
+        metalness: 0.03
+      });
+    };
+
+    const addPanel = (size, position, material) => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(size.x, size.y, size.z), material);
+      mesh.position.copy(position);
+      cabinetGroup.add(mesh);
+
+      const edges = new THREE.LineSegments(
+        new THREE.EdgesGeometry(mesh.geometry),
+        new THREE.LineBasicMaterial({ color: 0x101820, transparent: true, opacity: 0.45 })
+      );
+      edges.position.copy(position);
+      cabinetGroup.add(edges);
+    };
+
+    const clearCabinet = () => {
+      cabinetGroup.traverse((child) => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((material) => material.dispose?.());
+          } else {
+            child.material.dispose?.();
+          }
+        }
+      });
+      scene.remove(cabinetGroup);
+      cabinetGroup = new THREE.Group();
+      scene.add(cabinetGroup);
+    };
+
+    const resize = () => {
+      const rect = mount.getBoundingClientRect();
+      const width = Math.max(1, Math.floor(rect.width));
+      const height = Math.max(1, Math.floor(rect.height));
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+
+    const setCabinet = (cabinet, materials, textures) => {
+      clearCabinet();
+      if (!cabinet) return;
+
+      const cabinetMaterial = materials.find((material) => material.id === cabinet.cabinetMaterialID) || materials[0];
+      const backMaterial = materials.find((material) => material.id === cabinet.backMaterialID) || materials[0];
+      const faceMaterial = materials.find((material) => material.id === cabinet.faceMaterialID) || materials[0];
+      const body = visualMaterial(cabinetMaterial, textures);
+      const back = visualMaterial(backMaterial, textures);
+      const face = visualMaterial(faceMaterial, textures);
+
+      const maxDimension = Math.max(cabinet.width, cabinet.depth, cabinet.height, 1);
+      const scale = 3.4 / maxDimension;
+      const width = cabinet.width * scale;
+      const depth = cabinet.depth * scale;
+      const height = cabinet.height * scale;
+      const bodyThickness = Math.max(cabinetMaterial.thickness * scale, 0.035);
+      const backThickness = Math.max(backMaterial.thickness * scale, 0.016);
+      const faceThickness = Math.max(faceMaterial.thickness * scale, 0.025);
+      const innerWidth = Math.max(0.05, width - bodyThickness * 2);
+      const innerDepth = Math.max(0.05, depth - bodyThickness - backThickness);
+
+      addPanel(
+        new THREE.Vector3(width, bodyThickness, depth),
+        new THREE.Vector3(0, -height / 2 + bodyThickness / 2, 0),
+        body
+      );
+      addPanel(
+        new THREE.Vector3(bodyThickness, height, depth),
+        new THREE.Vector3(-width / 2 + bodyThickness / 2, 0, 0),
+        body
+      );
+      addPanel(
+        new THREE.Vector3(bodyThickness, height, depth),
+        new THREE.Vector3(width / 2 - bodyThickness / 2, 0, 0),
+        body
+      );
+      addPanel(
+        new THREE.Vector3(innerWidth, bodyThickness, innerDepth),
+        new THREE.Vector3(0, 0, -bodyThickness / 2),
+        body
+      );
+      addPanel(
+        new THREE.Vector3(innerWidth, bodyThickness, depth),
+        new THREE.Vector3(0, height / 2 - bodyThickness / 2, 0),
+        body
+      );
+      addPanel(
+        new THREE.Vector3(width, height, backThickness),
+        new THREE.Vector3(0, 0, -depth / 2 + backThickness / 2),
+        back
+      );
+      addPanel(
+        new THREE.Vector3(width, height, faceThickness),
+        new THREE.Vector3(0, 0, depth / 2 + faceThickness / 2),
+        face
+      );
+
+      cabinetGroup.rotation.y = -0.35;
+      controls.target.set(0, 0, 0);
+      camera.position.set(4.2, 3.2, 5.2);
+      controls.update();
+    };
+
+    new ResizeObserver(resize).observe(mount);
+    resize();
+
+    const animate = () => {
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    };
+    animate();
+
+    window.bamBoViewer = { setCabinet, resize };
+    window.dispatchEvent(new Event('bambo-viewer-ready'));
+  </script>
+
   <script>
     const DEFAULT_TEXTURES = [
       { id: 1, name: 'Natural Wood', image: '' },
@@ -565,14 +816,15 @@
     ];
 
     const DEFAULT_MATERIALS = [
-      { id: 1, name: 'Cabinet Ply 18mm', thickness: 1.8, textureID: 1, width: 122, height: 244 },
-      { id: 2, name: 'Back Panel 3mm', thickness: 0.3, textureID: 2, width: 122, height: 244 },
-      { id: 3, name: 'Face Ply 18mm', thickness: 1.8, textureID: 1, width: 122, height: 244 }
+      { id: 1, name: 'Cabinet Ply 18mm', thickness: 1.8, colorID: 1, textureID: 1, width: 122, height: 244 },
+      { id: 2, name: 'Back Panel 3mm', thickness: 0.3, colorID: 2, textureID: 2, width: 122, height: 244 },
+      { id: 3, name: 'Face Ply 18mm', thickness: 1.8, colorID: 3, textureID: 1, width: 122, height: 244 }
     ];
 
     const state = {
       currentProjectId: '',
       cabinets: [],
+      selectedCabinetIndex: -1,
       projects: [],
       materials: DEFAULT_MATERIALS.map((material) => ({ ...material })),
       textures: DEFAULT_TEXTURES.map((texture) => ({ ...texture }))
@@ -590,6 +842,8 @@
     const cabinetCount = document.getElementById('cabinet-count');
     const pieceCount = document.getElementById('piece-count');
     const projectIdBadge = document.getElementById('project-id');
+    const viewerTitle = document.getElementById('viewer-title');
+    const viewerMeta = document.getElementById('viewer-meta');
     const statusNode = document.getElementById('status');
     const materialTextureSelect = document.getElementById('material-texture');
     const materialSelects = [
@@ -643,6 +897,15 @@
       const textureLabel = texture ? ' | ' + texture.name : '';
       return material.name + ' | ' + Number(material.thickness).toFixed(2) + ' thick' + textureLabel;
     };
+
+    const colorName = (id) => ({
+      0: 'Neutral',
+      1: 'Birch',
+      2: 'Graphite',
+      3: 'Walnut',
+      4: 'White',
+      5: 'Sage'
+    }[Number(id)] || 'Neutral');
 
     const nextID = (items) => items.reduce((max, item) => Math.max(max, Number(item.id || 0)), 0) + 1;
 
@@ -727,13 +990,25 @@
       statusNode.textContent = message || '';
     };
 
-    const boxStyle = (cab) => {
-      const max = Math.max(cab.width, cab.height, cab.depth, 1);
-      const scale = 84 / max;
-      const width = Math.max(34, Math.round(cab.width * scale));
-      const height = Math.max(34, Math.round(cab.height * scale));
-      const depth = Math.max(26, Math.round(cab.depth * scale));
-      return '--box-w:' + width + 'px;--box-h:' + height + 'px;--box-d:' + depth + 'px;';
+    const selectedCabinet = () => state.cabinets[state.selectedCabinetIndex] || null;
+
+    const renderViewer = () => {
+      const cab = selectedCabinet();
+      if (!cab) {
+        viewerTitle.textContent = 'Select a cabinet';
+        viewerMeta.innerHTML = '<div class="pill">No cabinet selected</div>';
+        window.bamBoViewer?.setCabinet(null, state.materials, state.textures);
+        return;
+      }
+
+      const materials = resolveCabinetMaterials(cab);
+      viewerTitle.textContent = cab.name || 'Selected cabinet';
+      viewerMeta.innerHTML =
+        '<div class="pill">' + cab.width + 'w x ' + cab.depth + 'd x ' + cab.height + 'h</div>' +
+        '<div class="pill">Cabinet ' + Number(materials.cabinet.thickness).toFixed(2) + '</div>' +
+        '<div class="pill">Back ' + Number(materials.back.thickness).toFixed(2) + '</div>' +
+        '<div class="pill">Face ' + Number(materials.face.thickness).toFixed(2) + '</div>';
+      window.bamBoViewer?.setCabinet(cab, state.materials, state.textures);
     };
 
     const renderCabinets = () => {
@@ -742,34 +1017,23 @@
         return;
       }
 
-      cabinetList.innerHTML = state.cabinets.map((cab, index) =>
-        {
+      cabinetList.innerHTML = state.cabinets.map((cab, index) => {
           const materials = resolveCabinetMaterials(cab);
-          return '<article class="cabinet-item">' +
-          '<div class="preview-wrap">' +
-            '<div class="preview-stage">' +
-              '<div class="box-3d" style="' + boxStyle(cab) + '">' +
-                '<div class="face front"></div>' +
-                '<div class="face back"></div>' +
-                '<div class="face left"></div>' +
-                '<div class="face right"></div>' +
-                '<div class="face top"></div>' +
-                '<div class="face bottom"></div>' +
-              '</div>' +
-            '</div>' +
-            '<div>' +
-              '<div class="row">' +
+          return '<article class="cabinet-item' + (index === state.selectedCabinetIndex ? ' is-active' : '') + '">' +
+            '<div class="row">' +
+              '<div>' +
                 '<strong>' + escapeHTML(cab.name) + '</strong>' +
+                '<div class="mini">Mode ' + cab.mode + ' | ' + cab.width + 'w x ' + cab.depth + 'd x ' + cab.height + 'h</div>' +
+              '</div>' +
+              '<div class="row wrap">' +
+                '<button class="secondary" type="button" data-select="' + index + '">View</button>' +
                 '<button class="secondary" type="button" data-remove="' + index + '">Remove</button>' +
               '</div>' +
-              '<div class="mini">Mode ' + cab.mode + ' | ' + cab.width + 'w x ' + cab.depth + 'd x ' + cab.height + 'h</div>' +
-              '<div class="mini">Cabinet: ' + escapeHTML(materialLabel(materials.cabinet)) + '</div>' +
-              '<div class="mini">Back: ' + escapeHTML(materialLabel(materials.back)) + ' | Face: ' + escapeHTML(materialLabel(materials.face)) + '</div>' +
             '</div>' +
-          '</div>' +
-        '</article>';
-        }
-      ).join('');
+            '<div class="mini">Cabinet: ' + escapeHTML(materialLabel(materials.cabinet)) + '</div>' +
+            '<div class="mini">Back: ' + escapeHTML(materialLabel(materials.back)) + ' | Face: ' + escapeHTML(materialLabel(materials.face)) + '</div>' +
+          '</article>';
+        }).join('');
     };
 
     const renderPieces = () => {
@@ -849,7 +1113,7 @@
             '<div>' +
               '<strong>' + escapeHTML(material.name) + '</strong>' +
               '<div class="mini">' + Number(material.thickness).toFixed(2) + ' thick | ' + Number(material.width).toFixed(2) + ' x ' + Number(material.height).toFixed(2) + '</div>' +
-              '<div class="mini">Texture: ' + escapeHTML(texture ? texture.name : 'None') + '</div>' +
+              '<div class="mini">Color: ' + escapeHTML(colorName(material.colorID)) + ' | Texture: ' + escapeHTML(texture ? texture.name : 'None') + '</div>' +
             '</div>' +
             '<div class="texture-chip"' + textureImage + '></div>' +
           '</div>' +
@@ -900,6 +1164,7 @@
       renderMaterialSettings();
       renderTextureSettings();
       renderStats();
+      renderViewer();
     };
 
     const exportBody = () => JSON.stringify({
@@ -966,6 +1231,7 @@
       state.textures = normalizeTextures(payload.textures);
       state.materials = normalizeMaterials(payload.materials);
       state.cabinets = (payload.cabinets || []).map(normalizeCabinet);
+      state.selectedCabinetIndex = state.cabinets.length ? 0 : -1;
       setStatus('Loaded project "' + payload.name + '".');
       render();
       await loadProjects();
@@ -1009,6 +1275,7 @@
     const newProject = () => {
       state.currentProjectId = '';
       state.cabinets = [];
+      state.selectedCabinetIndex = -1;
       state.materials = normalizeMaterials([]);
       state.textures = normalizeTextures([]);
       projectNameInput.value = '';
@@ -1040,6 +1307,7 @@
         id: id || nextID(state.materials),
         name: String(data.get('name')).trim(),
         thickness: Number(data.get('thickness')),
+        colorID: Number(data.get('colorID')),
         textureID: Number(data.get('textureID')),
         width: Number(data.get('width')),
         height: Number(data.get('height'))
@@ -1111,6 +1379,7 @@
         thickness: Number(cabinetMaterial.thickness),
         back: Number(backMaterial.thickness)
       });
+      state.selectedCabinetIndex = state.cabinets.length - 1;
 
       form.reset();
       renderMaterialOptions();
@@ -1121,10 +1390,25 @@
     cabinetList.addEventListener('click', (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
+      const selected = target.dataset.select;
+      if (selected !== undefined) {
+        state.selectedCabinetIndex = Number(selected);
+        render();
+        return;
+      }
+
       const index = target.dataset.remove;
       if (index === undefined) return;
 
-      state.cabinets.splice(Number(index), 1);
+      const removedIndex = Number(index);
+      state.cabinets.splice(removedIndex, 1);
+      if (!state.cabinets.length) {
+        state.selectedCabinetIndex = -1;
+      } else if (state.selectedCabinetIndex >= state.cabinets.length) {
+        state.selectedCabinetIndex = state.cabinets.length - 1;
+      } else if (removedIndex < state.selectedCabinetIndex) {
+        state.selectedCabinetIndex -= 1;
+      }
       setStatus('Cabinet removed.');
       render();
     });
@@ -1140,6 +1424,7 @@
         materialForm.elements.id.value = material.id;
         materialForm.elements.name.value = material.name;
         materialForm.elements.thickness.value = material.thickness;
+        materialForm.elements.colorID.value = material.colorID || 0;
         materialForm.elements.textureID.value = material.textureID || 0;
         materialForm.elements.width.value = material.width;
         materialForm.elements.height.value = material.height;
@@ -1210,6 +1495,7 @@
     document.getElementById('cancel-texture-edit').addEventListener('click', resetTextureForm);
     document.getElementById('export-json').addEventListener('click', () => downloadExport('/api/export/json', 'cut-list.json'));
     document.getElementById('export-pdf').addEventListener('click', () => downloadExport('/api/export/pdf', 'cut-list.pdf'));
+    window.addEventListener('bambo-viewer-ready', renderViewer);
 
     renderMaterialOptions();
     render();

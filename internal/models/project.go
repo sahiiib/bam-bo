@@ -20,9 +20,9 @@ type PlyMaterial struct {
 
 func DefaultPlyMaterials() []PlyMaterial {
 	return []PlyMaterial{
-		{ID: 1, Name: "Cabinet Ply 18mm", Thickness: 1.8, TextureID: 1, Width: 122, Height: 244},
-		{ID: 2, Name: "Back Panel 3mm", Thickness: 0.3, TextureID: 2, Width: 122, Height: 244},
-		{ID: 3, Name: "Face Ply 18mm", Thickness: 1.8, TextureID: 1, Width: 122, Height: 244},
+		{ID: 1, Name: "Cabinet Ply 18mm", Thickness: 1.8, ColorID: 1, TextureID: 1, Width: 122, Height: 244},
+		{ID: 2, Name: "Back Panel 3mm", Thickness: 0.3, ColorID: 2, TextureID: 2, Width: 122, Height: 244},
+		{ID: 3, Name: "Face Ply 18mm", Thickness: 1.8, ColorID: 3, TextureID: 1, Width: 122, Height: 244},
 	}
 }
 

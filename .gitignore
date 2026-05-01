@@ -7,10 +7,14 @@
 # Test binary, built with `go test -c`
 *.test
 *.yml
+!docker-compose.yml
 # Output of the go coverage tool, produced by `go test -coverprofile`
 *.out
 
 # Dependency directories
 vendor/
+!web/static/js/vendor/
+!web/static/js/vendor/*.js
 data /
 Dockerfile
+!Dockerfile
